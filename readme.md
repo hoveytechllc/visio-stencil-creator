@@ -4,7 +4,7 @@ This application creates a Microsoft Visio stencil file (vssx) from PNG images.
 
 ## Usage
 
-Docker image exists prebuild using this source. 
+Docker image `hoveytech/visio-stencil-creator` prebuild using this source. 
 * Replace `<input-path>` with host path to images. 
 * Replace `<output-path>` with host path to where stencil file should be placed.
 
@@ -19,3 +19,5 @@ docker run \
 ```
 
 **Additional notes:**
+* First parameter, `"*.png"` supports glob pattern searching, which internally uses [Microsoft.Extensions.FileSystemGlobbing](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.filesystemglobbing?view=aspnetcore-2.2) Nuget Package.
+* Third parameter can be changed to specific exact output filename.
