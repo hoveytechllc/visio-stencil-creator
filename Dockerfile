@@ -8,7 +8,7 @@ RUN dotnet publish /build/VisioStencilCreator.App/VisioStencilCreator.App.csproj
 FROM microsoft/dotnet:2.2-runtime as final
 COPY --from=build /app /app
 
-# From https://github.com/JanKallman/EPPlus/issues/83
+# From https://github.com/JanKallman/EPPlus/issues/83#issuecomment-404570402
 RUN ln -s /lib/x86_64-linux-gnu/libdl.so.2 /lib/x86_64-linux-gnu/libdl.so \
     && apt-get update \
     && apt-get install -y libgdiplus \
