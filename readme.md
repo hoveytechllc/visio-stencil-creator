@@ -12,7 +12,7 @@ Docker image `hoveytech/visio-stencil-creator` prebuild using this source.
 docker run \
     -v <input-path>:/app/input-data \
     -v <output-path>:/app/output \
-    hoveytech/visio-stencil-creator \
+    hoveytech/visio-stencil-creator:0.1 \
     "*.png" \
     "/app/input-data" \
     "/app/output/output.vssx"
