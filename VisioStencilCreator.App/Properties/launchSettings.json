@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "VisioStencilCreator.App": {
+      "commandName": "Project",
+      "commandLineArgs": "\"./test-data/*.png\" \"./../../../../\" \"\"./../../../../tmp/output.vssx\""
+    }
+  }
+}

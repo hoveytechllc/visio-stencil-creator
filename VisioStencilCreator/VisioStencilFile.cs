@@ -1,31 +1,73 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.IO.MemoryMappedFiles;
 using System.IO.Packaging;
 using System.Linq;
-using System.Net.Mime;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.FileSystemGlobbing;
+using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 
 namespace VisioStencilCreator
 {
-    class Program
+    public class VisioStencilFile
     {
-        static void Main(string[] args)
+        public static void GenerateStencilFileFromImages(string minimatchPattern,
+            string baseDirectoryPath,
+            string outputFilename)
         {
-            var processPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dataPath = Path.Combine(processPath, "data");
+            Console.WriteLine($"---> Validating Parameters");
 
-            var images = Directory.GetFiles(dataPath, "*.png")
+            outputFilename = Path.GetFullPath(outputFilename);
+            Console.WriteLine($"Using OutputFilename '{outputFilename}'");
+
+            if (Path.GetExtension(outputFilename) != ".vssx")
+                throw new Exception("OutputPath must have 'vssx' extension");
+            var outputPath = Path.GetDirectoryName(outputFilename);
+            if (!Directory.Exists(outputPath))
+                Directory.CreateDirectory(outputPath);
+
+            var matcher = new Matcher();
+            matcher.AddIncludePatterns(minimatchPattern.Split(';'));
+            var result = matcher.Execute(new DirectoryInfoWrapper(new DirectoryInfo(baseDirectoryPath)));
+
+            var imageFiles = result.Files
+                .Select(x => Path.GetFullPath(Path.Combine(baseDirectoryPath, x.Path)))
                 .ToList();
 
+            if (imageFiles.Count == 0)
+                throw new Exception("No images found for processing.");
+            Console.WriteLine($"---> Processing {imageFiles.Count} images.");
+            foreach (var image in imageFiles)
+                Console.WriteLine(image);
+
+            var templateStream = Assembly.GetExecutingAssembly()
+                      .GetManifestResourceStream("VisioStencilCreator.Resources.Template.vssx");
+
+            using (var packageStream = new MemoryStream())
+            {
+                templateStream.CopyTo(packageStream);
+                packageStream.Seek(0, SeekOrigin.Begin);
+
+                GenerateInternal(imageFiles, packageStream);
+
+                using (var fileStream = File.Create(outputFilename))
+                {
+                    packageStream.Seek(0, SeekOrigin.Begin);
+                    packageStream.CopyTo(fileStream);
+                }
+            }
+
+        }
+
+        private static void GenerateInternal(IList<string> images,
+            Stream packageStream)
+        {
             var package = Package.Open(
-                Path.Combine(processPath, "Template.vssx"),
+                packageStream,
                 FileMode.Open,
                 FileAccess.ReadWrite);
 
@@ -61,7 +103,7 @@ namespace VisioStencilCreator
                     }
                 }
 
-                masterPart.CreateRelationship(new Uri($"../media/image{id}.png", UriKind.Relative), 
+                masterPart.CreateRelationship(new Uri($"../media/image{id}.png", UriKind.Relative),
                     TargetMode.Internal,
                     "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
                     "rId1");
@@ -77,7 +119,7 @@ namespace VisioStencilCreator
                     .Replace("{thumbnail}", imageThumbnail)
                     .Replace("{baseId}", $"{{{Guid.NewGuid().ToString()}}}")
                     .Replace("{uniqueId}", $"{{{Guid.NewGuid().ToString()}}}");
-                
+
                 mastersXmlElements += masterXml;
 
 
@@ -125,18 +167,17 @@ namespace VisioStencilCreator
             package.Close();
         }
 
-        public static string ConvertImageToBase64Thumbnail(string originalImagePath)
+        private static string ConvertImageToBase64Thumbnail(string originalImagePath)
         {
             using (var memoryStream = new MemoryStream())
             {
-
                 var original = Image.FromFile(originalImagePath);
                 var destImage = new Bitmap(original, 16, 16);
 
                 destImage.Save(memoryStream, ImageFormat.Bmp);
                 memoryStream.Position = 0;
                 byte[] byteBuffer = memoryStream.ToArray();
-                
+
                 return Convert.ToBase64String(byteBuffer, Base64FormattingOptions.InsertLineBreaks);
             }
         }
@@ -189,6 +230,4 @@ namespace VisioStencilCreator
         private const string MastersMasterXmlTemplate = @"<Master ID='{id}' NameU='{name}' IsCustomNameU='1' Name='{name}' IsCustomName='1' Prompt='' IconSize='1' AlignName='2' MatchByName='0' IconUpdate='1' UniqueID='{uniqueId}' BaseID='{baseId}' PatternFlags='0' Hidden='0' MasterType='2'><PageSheet LineStyle='0' FillStyle='0' TextStyle='0'><Cell N='PageWidth' V='8.5'/><Cell N='PageHeight' V='11'/><Cell N='ShdwOffsetX' V='0.125'/><Cell N='ShdwOffsetY' V='-0.125'/><Cell N='PageScale' V='1' U='IN_F'/><Cell N='DrawingScale' V='1' U='IN_F'/><Cell N='DrawingSizeType' V='0'/><Cell N='DrawingScaleType' V='0'/><Cell N='InhibitSnap' V='0'/><Cell N='PageLockReplace' V='0' U='BOOL'/><Cell N='PageLockDuplicate' V='0' U='BOOL'/><Cell N='UIVisibility' V='0'/><Cell N='ShdwType' V='0'/><Cell N='ShdwObliqueAngle' V='0'/><Cell N='ShdwScaleFactor' V='1'/><Cell N='DrawingResizeType' V='1'/></PageSheet><Icon>
 {thumbnail}</Icon><Rel r:id='rId{id}'/></Master>";
     }
-
 }
-

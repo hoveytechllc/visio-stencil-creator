@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.421
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisioStencilCreator", "VisioStencilCreator\VisioStencilCreator.csproj", "{11B9FE69-169E-40EC-B72D-F1C28CBB5D61}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisioStencilCreator.App", "VisioStencilCreator.App\VisioStencilCreator.App.csproj", "{C0F2CF05-8163-45E4-BB00-E82AD91C1DFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{11B9FE69-169E-40EC-B72D-F1C28CBB5D61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11B9FE69-169E-40EC-B72D-F1C28CBB5D61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11B9FE69-169E-40EC-B72D-F1C28CBB5D61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0F2CF05-8163-45E4-BB00-E82AD91C1DFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0F2CF05-8163-45E4-BB00-E82AD91C1DFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0F2CF05-8163-45E4-BB00-E82AD91C1DFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0F2CF05-8163-45E4-BB00-E82AD91C1DFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
