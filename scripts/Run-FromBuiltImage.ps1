@@ -18,7 +18,7 @@ $repositoryName="visio-stencil-creator"
 Get-ChildItem -Path .\${repositoryName} -Recurse | Remove-Item -Force -Recurse
 
 # Clone repository in current path
-git clone -q git@github.com:${githubOrganization}/${repositoryName}.git
+git clone -q https://github.com/${githubOrganization}/${repositoryName}.git
 
 # build image using Dockerfile from github repository
 docker build `

@@ -31,16 +31,19 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -z $OUTPUT_FILENAME ]; then
-    OUTPUT_FILENAME="Generated"
+  OUTPUT_FILENAME="Generated"
 fi
 if [ -z $CONTENT_PATH ]; then
-    CONTENT_PATH=${PWD}
+  CONTENT_PATH=${PWD}
 fi
+
+echo "Using content path: '"${CONTENT_PATH}"'"
+echo "Using output filename: '"${OUTPUT_FILENAME}"'"
 
 rm -fdr ./${REPO_NAME}
 
 # Clone repository in current path
-git clone git@github.com:${GITHUB_ORG}/${REPO_NAME}.git
+git clone https://github.com/${GITHUB_ORG}/${REPO_NAME}.git
 
 # build image using Dockerfile from github repository
 docker build \
@@ -52,8 +55,8 @@ docker build \
 docker run \
     -v ${CONTENT_PATH}:/app/content \
     ${REPO_NAME}:latest \
-    "*.png" \
+    "**/*.png" \
     "/app/content" \
-    "/app/content/${outputFilename}.vssx"
+    "/app/content/${OUTPUT_FILENAME}.vssx"
 
 rm -fdr ./${REPO_NAME}
